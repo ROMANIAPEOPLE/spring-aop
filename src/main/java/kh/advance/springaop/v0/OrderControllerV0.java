@@ -13,6 +13,6 @@ public class OrderControllerV0 {
     @GetMapping("/v0/request")
     public String request(String itemId) {
         orderServiceV0.orderItem(itemId);
-        return "ok";
+        return "ok!";
     }
 }
