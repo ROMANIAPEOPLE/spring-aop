@@ -14,6 +14,5 @@ public class OrderControllerV0 {
     public String request(String itemId) {
         orderServiceV0.orderItem(itemId);
         return "ok";
-        "ss"
     }
 }
