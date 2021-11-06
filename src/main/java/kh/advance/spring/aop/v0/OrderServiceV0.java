@@ -1,4 +1,4 @@
-package kh.advance.springaop.v0;
+package kh.advance.spring.aop.v0;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;

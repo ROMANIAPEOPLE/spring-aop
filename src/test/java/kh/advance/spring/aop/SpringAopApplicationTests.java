@@ -1,4 +1,4 @@
-package kh.advance.springaop;
+package kh.advance.spring.aop;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;

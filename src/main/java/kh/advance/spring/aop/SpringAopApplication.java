@@ -1,4 +1,4 @@
-package kh.advance.springaop;
+package kh.advance.spring.aop;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
