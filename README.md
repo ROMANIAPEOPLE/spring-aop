@@ -237,10 +237,10 @@ ThreadLocal 인스턴스를 도입함으로써 동시성 이슈를 해결한 것
 </div>
 </details>
   
-  # spring-aop
+
 
 <details>
-<summary>Thread local</summary>
+<summary>템플릿 메소드 </summary>
 <div markdown="1">
 
 # 📒 템플릿 메소드 패턴
