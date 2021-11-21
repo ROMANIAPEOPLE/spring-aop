@@ -236,3 +236,158 @@ ThreadLocal 인스턴스를 도입함으로써 동시성 이슈를 해결한 것
   - WAS에 반환될 때 인터셉터 혹은 필터 단에서 초기화하는 방법으로 진행
 </div>
 </details>
+  
+  # spring-aop
+
+<details>
+<summary>Thread local</summary>
+<div markdown="1">
+
+# 📒 템플릿 메소드 패턴
+
+- 좋은 설계는 변하는 것과 변하지 않는 것을 분리하는 것이다.
+- 변하지 않는 것은 추상클래스의 메서드로 선언, 변하는 부분은 추상 메서드로 선언하여 자식 클래스가 오버라이딩 하도록 처리한다.
+- 이렇듯이 특정 작업을 처리하는 일부분을 서브 클래스로 캡슐화하여 전체적인 구조는 바꾸지 않으면서 특정 단계에서 수행하는 내용을 바꾸는 패턴이다.
+
+가장 큰 장점은 전체적으로는 동일하면서 부분적으로는 다른 구문으로 구성된 메서드의 **코드 중복을 최소화**시킬 수있는 점이다.
+
+##### 템플릿 메서드 패턴의 목적은 다음과 같다.
+
+"작업에서 알고리즘의 골격을 정의하고 일부 단계를 하위 클래스로 연기한다. 템플릿 메서드를 사용하면 하위 클래스가 알고리즘의 구조를 변경하지 않고도 알고리즘의 특정 단게를 재정의할 수 있다."
+
+즉, 부모 클래스에 알고리즘의 골격인 **템플릿** 을 정의하고 일부 변경되는 로직은 자식 클래스에 정의하는 것이다. 이렇게하면 자식 클래스가 알고리즘의 전체 구조를 변경하지 않고 특정 부분만 재정의할 수 있다. 결국 상속과 오버라이딩을 통한 다형성으로 문제를 해결하는 것이다.
+
+
+
+# 📒 사용 예시
+
+### 📌 추상 클래스
+
+```java
+public abstract class AbstractTemplate {
+    
+    public void execute() {
+	System.out.println("템플릿 시작");
+	//변해야 하는 로직 시작
+	logic();
+	//변해야 하는 로직 시작
+	System.out.println("템플릿 종료");
+    }
+    
+    protected abstract void logic(); //변경 가능성이 있는 부분은 추상 메소드로 선언한다.
+}
+```
+
+- 추상 클래스에서 변경 가능성이 있는 부분은 추상 메소드로 작성한다.
+
+
+
+### 📌 실제 구현 클래스
+
+```java
+public class SubClassLogic1 extends AbstractTemplate {
+    @Override
+    protected void call() {
+	System.out.println("변해야 하는 메서드는 이렇게 오버라이딩으로 사용1.");
+    }
+}
+public class SubClassLogic2 extends AbstractTemplate {
+    @Override
+    protected void call() {
+    	System.out.println("변해야 하는 메서드는 이렇게 오버라이딩으로 사용2.");
+    }
+}
+```
+
+- 추상클래스를 extends하여 변해야 하는 메소드를 Override한다.
+
+
+
+### 📌 사용
+
+```java
+public class templateMethod1 extends AbstractTemplate {
+    public static void main(String[] args) {
+	AbstractTemplate template1 = new SubClassLogic1();
+	template1.execute();
+    
+    	System.out.println();
+    
+	AbstractTemplate template2 = new SubClassLogic2();
+	template2.execute();
+    }
+}
+
+
+//출력
+템플릿 시작
+변해야 하는 메서드는 이렇게 오버라이딩으로 사용1
+템플릿 종료
+    
+템플릿 시작
+변해야 하는 메서드는 이렇게 오버라이딩으로 사용2
+템플릿 종료
+```
+
+- 객체 생성 시 어느 구현체를 사용하는지에 따라서 변하는 부분의 메소드가 바뀌게 된다.
+
+- 이로써 코드 중복을 최대한 피하면서 변해야 하는 부분은 구현체 사용에 따라서 유동적으로 바꿀 수 있다.
+
+  
+
+  
+
+## 📒 익명 내부 클래스를 사용
+
+- `SubClassLogic1`, `SubClassLogic2`처럼 구현 클래스를 계속 만들어야 하는 단점이 있다.
+- **해결 방법**: 익명 내부 클래스를 사용
+- 익명 내부 클래스를 사용하면 객체 인스턴스를 생성하면서 동시에 생성할 클래스를 상속 받은 자식 클래스를 정의할 수 있다.
+
+```java
+public class templateMethod1 extends AbstractTemplate {
+    public static void main(String[] args) {
+	AbstractTemplate template1 = new AbstractTemplate() {
+		@Override
+		protected void call() {
+			System.out.println("변해야 하는 메서드를 이렇게 익명 내부 클래스로 구현할 수 있다1");
+		}
+	};
+	template1.execute();
+    
+	AbstractTemplate template2 = new AbstractTemplate() {
+		@Override
+		protected void call() {
+			System.out.println("변해야 하는 메서드를 이렇게 익명 내부 클래스로 구현할 수 있다2");
+		}
+	};
+	template2.execute();
+    }
+}
+
+//출력
+템플릿 시작
+변해야 하는 메서드를 이렇게 익명 내부 클래스로 구현할 수 있다1
+템플릿 종료
+    
+템플릿 시작
+변해야 하는 메서드를 이렇게 익명 내부 클래스로 구현할 수 있다2
+템플릿 종료
+```
+
+
+
+## 단점
+
+템플릿 메서드 패턴은 상속을 사용한다. 따라서 상속에서 오는 단점들을 그대로 안고간다. 특히 자식 클래스가 부모 클래스와 컴파일 시점에 강하게 결합되는 문제가 있다. 이것은 의존관계에 대한 문제이다. 자식 클래스 입장에서는 부모 클래스의 기능을 전혀 사용하지 않는다.
+
+상속을 받는 다는 것은 특정 부모 클래스를 의존하고 있다는 것이다. 자식 클래스의 extends 다음에 바로 부모 클래스가 코드상에 지정되어 있다. 따라서 부모 클래스의 기능을 사용하든 사용하지 않든 간에 부모 클래스를 강하게 의존하게 된다. 여기서 강하게 의존한다는 뜻은 자식 클래스의 코드에 부모 클래스의 코드가 명확하게 적혀 있다는 뜻이다. UML에서 상속을 받으면 삼각형 화살표가 자식 -> 부모 를 향하고 있는 것은 이런 의존관계를 반영하는 것이다.
+
+자식 클래스 입장에서는 부모 클래스의 기능을 전혀 사용하지 않는데, 부모 클래스를 알아야한다. 이것은 좋은 설계가 아니다. 그리고 이런 잘못된 의존관계 때문에 부모 클래스를 수정하면, 자식 클래스에도 영향을 줄 수 있다.
+
+추가로 템플릿 메서드 패턴은 상속 구조를 사용하기 때문에, 별도의 클래스나 익명 내부 클래스를 만들어야 하는 부분도 복잡하다.
+ 지금까지 설명한 이런 부분들을 더 깔끔하게 개선하려면 어떻게 해야할까?
+
+템플릿 메서드 패턴과 비슷한 역할을 하면서 상속의 단점을 제거할 수 있는 디자인 패턴이 바로 전략 패턴 (Strategy Pattern)이다.
+</div>
+</details>
+
