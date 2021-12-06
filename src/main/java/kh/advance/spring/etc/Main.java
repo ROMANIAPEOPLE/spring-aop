@@ -34,9 +34,7 @@ public class Main {
                 log.info("익명 내부 클래스로 전략 패턴 사용하기");
             }
         };
-
         ContextV1 context = new ContextV1(strategy);
-
         context.execute();
     }
 
