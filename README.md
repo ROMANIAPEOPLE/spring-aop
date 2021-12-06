@@ -390,3 +390,139 @@ public class templateMethod1 extends AbstractTemplate {
 </div>
 </details>
 
+<details>
+<summary>전략 패턴</summary>
+<div markdown="1">
+전략 패턴(strategy pattern)
+
+
+![img](https://images.velog.io/images/pbg0205/post/74c157b1-7d99-4e8a-908c-f03840250231/image.png)
+
+### 1. 전략 패턴과 템플릿 메서드 패턴을 사용하는 이유?
+
+전략 패턴을 사용하는 이유는 **`템플릿(context) 안에 로직을(strategy) 유연하게 변경`**하기 위해서 사용한다. 또한 변하는 부분의 책임을 구분하여 SRP를 만족할 수 있어 좋은 설계를 할 수 있다. 여기서 말하는 **`템플릿은 변경하지 않는 부분, 로직은 변하는 부분`**을 말한다. 이와 유사한 디자인 패턴으로 템플릿 메서드 패턴이 있다. 그렇다면 템플릿 메서드 패턴 대신 전략 패턴을 사용하는 이유는 뭘까?
+
+
+
+### 2. 템플릿 메서드 패턴의 단점
+
+**`템플릿 메서드 패턴`**은 변경하는 부분은 자식 클래스에서 재정의하는 방법이다. 템플릿 메서드 패턴과 전략 패턴의 가장 큰 차이는 변하는 부분의 로직의 부모를 **`클래스(abstract)를 사용하는지, 인터페이스(interface)를 사용하는지 차이`**다.
+하지만 부모의 구현의 파급 효과는 생각보다 크다. 흔히 알고 있는 상속의 단점인 **`부모 자식 간의 강한 결합`**과 **`원치 않는 데이터 또는 함수의 상속이라는 점`**이다. 프로그래밍 설계 원칙의 기본은 약한 의존성과 강한 결합도이다. 비록 상속 또한 기능 확장이라는 강한 장점이지만 상위 클래스의 데이터와 함수에 대한 변경이 있을 경우, 하위 클래스의 변경 연쇄적으로 이루어질 수 있다. 하나의 변경이 다른 변경을 연쇄적으로 발생한다는 것은 좋은 방법은 아니다.
+
+
+
+### 3. 전략 패턴의 장점
+
+이를 해결하기 위해서 도입된 방법이 **`전략 패턴`**이다. 앞서 이야기 했듯이, 변하는 부분의 부모를 인터페이스(interface)로 선언하고 하위 클래스에서 위임하는 방식이다. 이 방식의 장점은 상속에 비해 약간 의존성을 갖는다. 이전의 상속의 경우는 부모가 변경이 일어나면 자식에도 영향이 있을 수 있지만 인터페이스로 구현할 경우, 이 부분을 신경쓰지 않아도 되는 장점이 있다.
+
+또한 **`익명 클래스와 람다식을 사용하기 편리하다.`** 인터페이스에 메서드가 하나만 존재할 경우, 자바에서 메서드를 추론할 수 있기 때문에 람다식을 사용할 수 있다. 람다식을 사용할 경우, 코드가 간결해지는 장점이 있고 개인적으로는 코드가 익명 클래스보다 직관적이어서 선호하는 방식이다.
+
+
+
+### 4. 전략 패턴 사용 방식 : 필드 vs 메서드 파라미터
+
+```java
+interface Movable {
+    void move();
+}
+
+public class Walk implments Movable {
+    public void move() {
+    	System.out.println("걸어간다.");
+    }
+}
+
+public class Fly implements Movable {
+    public void move() {
+    	System.out.println("날아한다.");
+    }
+}
+
+class Robot {
+    //파라미터로 받는 방법
+    public move(Movable movable) {
+    	System.out.println("움직임 시작");
+    	movable.move();
+        System.out.println("움직임 끝");
+    }
+}
+```
+
+이전에는 전략 패턴을 필드로 선언하고 setter를 사용했지만 강의에서는 파라미터로 받아서 사용했다. 두 방법 모두 동적으로 전략을 사용할 수 있지만 setter 사용은 지양한다. setter를 사용할 경우, 변경하는 코드가 생겨 로직이 흩어지는 단점이 존재한다. 나중에 누군가가 setter로 로직을 변경하고 내가 모르고 그 코드를 맡아서 사용할 경우, 디버깅을 해서 원인을 찾아야 하는 어려움이 발생한다. 그렇기 때문에 **`setter를 지양하고 대신에 별도의 Context를 추가로 생성`**하도록 하자.
+
+하지만 이러면 Context의 중복이 일어나기 때문에 **`오히려 파라미터로 받아서 사용하는 방식이 적합`**한 것 같다. 해당 메서드를 사용할 때만 전략(strategy)를 추가하는 방식이 동적으로 로직을 처리하는 것이 더욱 유연하게 중복 코드없이 처리할 수 있는 방법이라고 생각한다.
+
+---
+
+
+
+### 템플릿 메서드 패턴 vs 전략 패턴
+
+탬플릿 메서드 패턴은 부모 클래스에 변하지 않는 템플릿을 두고, 변하는 부분을 자식 클래스에 두어서 상속을 사용해서 문제를 해결했다. 전략 패턴은 변하지 않는 부분을 Context 라는 곳에 두고, 변하는 부분을 Strategy 라는 인터페이스를 만들고 해당 인터페이스를 구현하도록 해서 문제를 해결한다. 상속이 아니라 위임으로 문제를 해결하는 것이다.
+
+전략 패턴에서 Context 는 변하지 않는 템플릿 역할을 하고, Strategy 는 변하는 알고리즘 역할을 한다.
+
+
+
+#### Strategy 인터페이스
+
+```java
+public interface Strategy {
+      void call();
+}
+```
+
+
+
+#### Context 클래스
+
+```java
+public class ContextV1 {
+    private Strategy strategy;
+
+    public ContextV1(Strategy strategy) {
+        this.strategy = strategy;
+    }
+
+    public void execute() {
+        long startTime = System.currentTimeMillis(); 
+
+        //비즈니스 로직 실행
+        strategy.call(); //위임
+        //비즈니스 로직 종료
+        
+        long endTime = System.currentTimeMillis();
+        long resultTime = endTime - startTime;
+        log.info("resultTime={}", resultTime);
+    }
+}
+```
+
+ContextV1 은 변하지 않는 로직을 가지고 있는 템플릿 역할을 하는 코드이다. 전략 패턴에서는 이것을 컨텍스트(문맥)이라 한다.
+ 쉽게 이야기해서 컨텍스트(문맥)는 크게 변하지 않지만, 그 문맥 속에서 strategy 를 통해 일부 전략이 변경된다 생각하면 된다.
+
+Context 는 내부에 Strategy strategy 필드를 가지고 있다. 이 필드에 변하는 부분인 Strategy 의 구현체를 주입하면 된다.
+ 전략 패턴의 핵심은 Context 는 Strategy 인터페이스에만 의존한다는 점이다. 덕분에 Strategy 의 구현체를 변경하거나 새로 만들어도 Context 코드에는 영향을 주지 않는다.
+
+즉, 스프링의 의존관계 주입과 같이  ContextV1 에 Strategy 의 구현체인 strategyLogic1 를 주입하는 것을 확인할 수 있다. 이렇게해서 Context 안에 원하는 전략을 주입한다. 이렇게 원하는 모양으로 조립을 완료하고 난 다음에 context1.execute() 를 호출해서 context 를 실행한다.
+
+![스크린샷 2021-12-06 오전 8.55.28](/Users/kh/Library/Application Support/typora-user-images/스크린샷 2021-12-06 오전 8.55.28.png)
+
+1. Context 에 원하는 Strategy 구현체를 주입한다.
+
+2. 클라이언트는 context 를 실행한다.
+
+3. context 는 context 로직을 시작한다.해
+
+4. context 로직 중간에 strategy.call() 을 호출해서 주입 받은 strategy 로직을 실행한다.
+
+5. context 는 나머지 로직을 실행한다.
+
+
+
+### 정리
+
+변하지 않는 부분은 Context에 두고 변하는 부분을 Strategy를 구현해서 만든다. 스프링으로 애플리케이션을 개발할 때 애플리케이션 로딩 시점에 의존관계 주입을 통해 필요한 의존관계를 모두 맺어두고 난 다음에 실제 요청을 처리하는 것 과 같은 원리이다.
+</div>
+</details>
+  
