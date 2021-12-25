@@ -1,4 +1,4 @@
-package kh.advance.spring.etc;
+package kh.advance.spring.etc.전략패턴;
 
 import lombok.extern.slf4j.Slf4j;
 
